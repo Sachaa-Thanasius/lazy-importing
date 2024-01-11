@@ -14,23 +14,14 @@ from __future__ import annotations
 import builtins
 import importlib.util
 import sys
-from collections.abc import Callable, Mapping, Sequence
 from importlib._bootstrap import _call_with_frames_removed  # type: ignore
-from importlib.machinery import ModuleSpec
-from types import ModuleType
 
 __all__ = ("lazy_loading",)
 
 _NEEDS_LOADING = object()
 
 
-def _handle_fromlist(
-    module: ModuleType,
-    fromlist: Sequence[str],
-    import_: Callable[[str], ModuleType],
-    *,
-    recursive: bool = False,
-) -> ModuleType:
+def _handle_fromlist(module, fromlist, import_, *, recursive: bool = False):
     """Figure out what __import__ should return.
 
     The import_ parameter is a callable which takes the name of module to
@@ -64,7 +55,7 @@ def _handle_fromlist(
     return module
 
 
-def _calc_package(globals: Mapping[str, object]) -> str | None:
+def _calc_package(globals) -> str | None:
     """Calculate what __package__ should be.
 
     __package__ is not guaranteed to be defined or could be set to None
@@ -76,7 +67,7 @@ def _calc_package(globals: Mapping[str, object]) -> str | None:
     import warnings
 
     package: str | None = globals.get("__package__")
-    spec: ModuleSpec | None = globals.get("__spec__")
+    spec = globals.get("__spec__")
     if package is not None:
         if spec is not None and package != spec.parent:
             warnings.warn(
@@ -101,7 +92,7 @@ def _calc_package(globals: Mapping[str, object]) -> str | None:
     return package
 
 
-def _lazy_import_module(name: str, package: str | None = None) -> ModuleType:
+def _lazy_import_module(name: str, package: str | None = None):
     """An approximate implementation of import, but lazy.
 
     Mostly copied from the import recipe in the CPython importlib docs.
@@ -140,13 +131,7 @@ def _lazy_import_module(name: str, package: str | None = None) -> ModuleType:
     return module
 
 
-def _new_import(
-    name: str,
-    globals: Mapping[str, object] | None = None,
-    locals: Mapping[str, object] | None = None,
-    fromlist: Sequence[str] = (),
-    level: int = 0,
-) -> ModuleType:
+def _new_import(name: str, globals=None, locals=None, fromlist=(), level: int = 0):
     """The new version of __import__ that supports uses lazy module loading.
 
     Mostly copied from importlib.__import__.
@@ -177,10 +162,10 @@ def _new_import(
 class lazy_loading:
     """A context manager that causes imports occuring within it to occur lazily."""
 
-    def __enter__(self) -> lazy_loading:
+    def __enter__(self):
         self.old_import = builtins.__import__
         builtins.__import__ = _new_import
         return self
 
-    def __exit__(self, *_: object) -> None:
+    def __exit__(self, *_: object):
         builtins.__import__ = self.old_import

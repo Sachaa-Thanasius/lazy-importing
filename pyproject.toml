@@ -65,6 +65,7 @@ ignore = [
     "PLR",     # Complexity things.
     "ANN101",  # Type of Self for self is implicit.
     "ANN102",  # Type of type[Self] for cls is implicit.
+    "ANN204",  # Special method return types are known by type checkers.
     "A002",    # Some builtin names are shadowed, like globals and locals.
     # Recommended ignores by ruff when using ruff format.
     "COM812",
@@ -76,6 +77,9 @@ ignore = [
 unfixable = [
     "ERA", # I don't want anything erroneously detected deleted by this.
 ]
+
+[tool.ruff.extend-per-file-ignores]
+"tests/*.*" = ["INP001"]
 
 [tool.ruff.isort]
 combine-as-imports = true
