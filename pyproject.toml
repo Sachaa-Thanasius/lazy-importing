@@ -79,7 +79,13 @@ unfixable = [
 ]
 
 [tool.ruff.extend-per-file-ignores]
-"tests/*.*" = ["INP001"]
+"tests/*.*" = [
+    "INP001", # Don't need a __init__.py.
+    "T201",   # Printing is fine.
+    "ANN",    # Don't need as many type annotations.
+    "F401",   # Unused imports.
+    "F841",   # Unused assigned variables.
+]
 
 [tool.ruff.isort]
 combine-as-imports = true
@@ -89,7 +95,7 @@ keep-runtime-typing = true
 
 [tool.pyright]
 include = ["lazy_importing"]
-ignore = ["extra"]
+ignore = ["tests"]
 pythonVersion = "3.8"
 typeCheckingMode = "strict"
 

@@ -118,7 +118,7 @@ def _lazy_import_module(name: str, package: str | None = None):
         msg = f"No module named {absolute_name!r}"
         raise ModuleNotFoundError(msg, name=absolute_name)
 
-    # Change the loading to be lazy.
+    # Change the loader to be lazy.
     loader = importlib.util.LazyLoader(spec.loader)
     spec.loader = loader
 

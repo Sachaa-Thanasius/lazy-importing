@@ -11,7 +11,7 @@ In practice, it would look something like this:
 ```py
 from lazy_importing import lazy_loading
 
-with lazy_loading:
+with lazy_loading():
     import typing
 
 # `typing` isn't actually fully imported until this stringified type annotation is evaluated.
