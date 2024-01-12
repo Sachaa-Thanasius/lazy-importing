@@ -7,7 +7,7 @@ from typing_extensions import Self
 
 __all__ = ("lazy_loading",)
 
-class LazyFinder(MetaPathFinder):
+class _LazyFinder(MetaPathFinder):
     def find_spec(
         self,
         fullname: str,
