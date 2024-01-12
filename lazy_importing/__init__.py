@@ -14,82 +14,12 @@ from __future__ import annotations
 import builtins
 import importlib.util
 import sys
-from importlib._bootstrap import _call_with_frames_removed  # type: ignore
+from importlib._bootstrap import _calc___package__, _handle_fromlist  # type: ignore
 
 __all__ = ("lazy_loading",)
 
-_NEEDS_LOADING = object()
 
-
-def _handle_fromlist(module, fromlist, import_, *, recursive: bool = False):
-    """Figure out what __import__ should return.
-
-    The import_ parameter is a callable which takes the name of module to
-    import. It is required to decouple the function from assuming importlib's
-    import implementation is desired.
-
-    Mostly copied from importlib._bootstrap._handle_fromlist.
-    """
-
-    # The hell that is fromlist ...
-    # If a package was imported, try to import stuff from fromlist.
-    for x in fromlist:
-        if not isinstance(x, str):  # type: ignore # Account for user input error?
-            where = f"{module.__name__}.__all__" if recursive else "``from list''"
-            msg = f"Item in {where} must be str, not {type(x).__name__}"
-            raise TypeError(msg)
-        if x == "*":
-            if not recursive and hasattr(module, "__all__"):
-                _handle_fromlist(module, module.__all__, import_, recursive=True)
-        elif not hasattr(module, x):
-            from_name = f"{module.__name__}.{x}"
-            try:
-                _call_with_frames_removed(import_, from_name)
-            except ModuleNotFoundError as exc:
-                # Backwards-compatibility dictates we ignore failed
-                # imports triggered by fromlist for modules that don't
-                # exist.
-                if exc.name == from_name and sys.modules.get(from_name, _NEEDS_LOADING) is not None:
-                    continue
-                raise
-    return module
-
-
-def _calc_package(globals) -> str | None:
-    """Calculate what __package__ should be.
-
-    __package__ is not guaranteed to be defined or could be set to None
-    to represent that its proper value is unknown.
-
-    Mostly copied from importlib._bootstrap._calc__package.
-    """
-
-    import warnings
-
-    package: str | None = globals.get("__package__")
-    spec = globals.get("__spec__")
-    if package is not None:
-        if spec is not None and package != spec.parent:
-            warnings.warn(
-                f"__package__ != __spec__.parent ({package!r} != {spec.parent!r})",
-                ImportWarning,
-                stacklevel=3,
-            )
-        return package
-
-    if spec is not None:
-        return spec.parent
-
-    warnings.warn(
-        "can't resolve package from __spec__ or __package__, falling back on __name__ and __path__",
-        ImportWarning,
-        stacklevel=3,
-    )
-    package = globals["__name__"]  # type: ignore # Should exist as a string in most circumstances.
-    if "__path__" not in globals:
-        package = package.rpartition(".")[0]
-
-    return package
+# Note: Functions imported from importlib._bootstrap might need to be reimplemented locally.
 
 
 def _lazy_import_module(name: str, package: str | None = None):
@@ -118,7 +48,7 @@ def _lazy_import_module(name: str, package: str | None = None):
         msg = f"No module named {absolute_name!r}"
         raise ModuleNotFoundError(msg, name=absolute_name)
 
-    # Change the loader to be lazy.
+    # Change the loader to be lazy. This is the only major "original" addition to all this.
     loader = importlib.util.LazyLoader(spec.loader)
     spec.loader = loader
 
@@ -131,28 +61,26 @@ def _lazy_import_module(name: str, package: str | None = None):
     return module
 
 
-def _new_import(name: str, globals=None, locals=None, fromlist=(), level: int = 0):
+def _new___import__(name: str, globals=None, locals=None, fromlist=(), level: int = 0):
     """The new version of __import__ that supports uses lazy module loading.
 
     Mostly copied from importlib.__import__.
     """
 
-    package = None if level == 0 else _calc_package(globals or {})
+    package = None if level == 0 else _calc___package__(globals if globals is not None else {})
     module = _lazy_import_module(name, package)
 
     if not fromlist:
-        # Return up to the first dot in 'name'. This is complicated by the fact
-        # that 'name' may be relative.
+        # Return up to the first dot in 'name'. This is complicated by the fact that 'name' may be relative.
         if level == 0:
             return _lazy_import_module(name.partition(".")[0])
         if not name:
             return module
 
-        # Figure out where to slice the module's name up to the first dot
-        # in 'name'.
+        # Figure out where to slice the module's name up to the first dot in 'name'.
         cut_off = len(name) - len(name.partition(".")[0])
-        # Slice end needs to be positive to alleviate need to special-case
-        # when ``'.' not in name``.
+
+        # Slice end needs to be positive to alleviate need to special-case when ``'.' not in name``.
         return sys.modules[module.__name__[: len(module.__name__) - cut_off]]
     if hasattr(module, "__path__"):
         return _handle_fromlist(module, fromlist, _lazy_import_module)
@@ -164,7 +92,7 @@ class lazy_loading:
 
     def __enter__(self):
         self.old_import = builtins.__import__
-        builtins.__import__ = _new_import
+        builtins.__import__ = _new___import__
         return self
 
     def __exit__(self, *_: object):
