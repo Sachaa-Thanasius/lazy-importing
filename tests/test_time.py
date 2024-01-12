@@ -1,4 +1,4 @@
-"""A stub of a test file. TODO: Expand."""
+"""A stub of a test file. TODO: Make more comprehensive."""
 
 import importlib.util
 import sys
@@ -43,9 +43,9 @@ def test_lazy_import_recipe():
 
 
 def test_lazy_import_custom():
-    with catchtime() as ct:
-        import lazy_importing
+    import lazy_importing
 
+    with catchtime() as ct:
         with lazy_importing.lazy_loading():
             import concurrent.futures
             import contextlib
