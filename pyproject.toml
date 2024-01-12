@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "lazy_importing"
 description = "An attempt at a context manager for conditional lazy imports in Python."
 requires-python = ">=3.8"
-version = "2024.01.11"
+version = "2024.01.12"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Sachaa-Thanasius", email = "111999343+Sachaa-Thanasius@users.noreply.github.com" }]

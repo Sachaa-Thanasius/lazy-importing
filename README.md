@@ -2,11 +2,11 @@
 
 An attempt at a context manager for conditional lazy imports in Python.
 
-The idea is that, using a context manager, one can temporarily replace `builtins.__import__`. That way, any regular imports (using `import x` syntax) occuring within the block of a context manager will use that modified `__import__` to find and load a module. In this case, I'm replacing `__import__` with something very similar; however, at the very last stage, before executing the imported module, this verison replaces the module's loader with `importlib.utils.LazyLoader`. That way, the import is technically deferred until later attribute access in the module.
+In this code is a simple import finder that delegates finding to the rest of the meta path, but upon finding the spec, substitutes the spec's loader with [`importlib.utils.LazyLoader`](https://docs.python.org/3.11/library/importlib.html#importlib.util.LazyLoader). The context manager temporarily places an instance of that finder at the front of the meta path, removing it upon exit.
 
-This was made with the intention of providing a nice syntax for lazy imports so that they are understood by type-checkers.
+This was made with the intention of providing a tool to prevent circular imports, an alternative to `if typing.TYPE_CHECKING` blocks, and a nice syntax for lazy imports that is understood by type-checkers. Currently, it doesn't support `from` imports that access an actual class, function, etc.; that immediately triggers the module to load.
 
-In practice, it would look something like this:
+In practice, it looks something like this:
 
 ```py
 from lazy_importing import lazy_loading
@@ -14,12 +14,11 @@ from lazy_importing import lazy_loading
 with lazy_loading():
     import typing
 
-# `typing` isn't actually fully imported until this stringified type annotation is evaluated.
+# `typing` isn't actually fully imported until this stringified type annotation is evaluated, i.e. `typing` is accessed in some other way.
 # However, the type-checker will still understand it.
 def example("typing.Mapping[str, bool]") -> str:
     ...
 
-# Upon attribute access, *that's* when it'll get imported.
-# If the annotation is never evaluated, the import cost is never payed.
+# If the annotation is never evaluated or the module is never used, the import cost is never payed.
 typing.get_type_hints(example)
 ```

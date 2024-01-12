@@ -43,10 +43,10 @@ def test_lazy_import_recipe():
 
 
 def test_lazy_import_custom():
-    import lazy_importing
+    from lazy_importing import lazy_loading
 
-    with catchtime() as ct:
-        with lazy_importing.lazy_loading():
+    with catchtime() as ct:  # noqa: SIM117 # Need to display the full block.
+        with lazy_loading():
             import concurrent.futures
             import contextlib
             import itertools
