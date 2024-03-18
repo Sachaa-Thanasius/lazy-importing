@@ -1,3 +1,5 @@
+"""Other existing lazy loading recipes to compare against."""
+
 import importlib
 import importlib.util
 import sys
@@ -31,6 +33,9 @@ def lazy_import_brett(importer_name: str, to_import: Iterable[str]) -> Tuple[typ
 
     Source: https://snarky.ca/lazy-importing-in-python-3-7/
 
+    Actual Docstring
+    ----------------
+
     Return the importing module and a callable for lazy importing.
 
     The module named by importer_name represents the module performing the
@@ -58,7 +63,7 @@ def lazy_import_brett(importer_name: str, to_import: Iterable[str]) -> Tuple[typ
             raise ModuleAttributeError(importer_name, name)
         importing = import_mapping[name]
         # imortlib.import_module() implicitly sets submodules on this module as appropriate for direct imports.
-        imported = importlib.import_module(importing, module.__spec__.parent)  # type: ignore # # Let presence of None cause an exception.
+        imported = importlib.import_module(importing, module.__spec__.parent)  # type: ignore # Let presence of None cause an exception.
         setattr(module, name, imported)
         return imported
 

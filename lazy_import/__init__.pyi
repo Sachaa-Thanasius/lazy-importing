@@ -5,6 +5,8 @@ from collections.abc import Sequence
 
 from typing_extensions import Self
 
+__all__ = ("lazy_imp",)
+
 class _LazyFinder(importlib.abc.MetaPathFinder):
     def find_spec(
         self,

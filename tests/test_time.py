@@ -4,7 +4,9 @@ import importlib.util
 import sys
 import time
 
-from lazy_import import lazy_imp, lazy_imp2, recipes
+from lazy_import import lazy_imp
+
+from . import recipes
 
 
 class catchtime:
@@ -22,6 +24,7 @@ def test_regular_import():
     with catchtime() as ct:
         import concurrent.futures
         import contextlib
+        import inspect
         import itertools
         import types
         import typing
@@ -45,7 +48,7 @@ def test_recipe_docs():
     print(f"Time taken for lazy import (based on importlib recipe) = {ct.total_time}")
 
 
-def test_lazy_import_v1():
+def test_lazy_imp():
     with catchtime() as ct:  # noqa: SIM117 # Display the separate block.
         with lazy_imp():
             import concurrent.futures
@@ -58,18 +61,3 @@ def test_lazy_import_v1():
 
     assert concurrent.futures.as_completed
     print(f"Time taken for lazy import v1 = {ct.total_time}")
-
-
-def test_lazy_import_v2():
-    with catchtime() as ct:  # noqa: SIM117 # Display the separate block.
-        with lazy_imp2():
-            import concurrent.futures
-            import contextlib
-            import inspect
-            import itertools
-            import types
-            import typing
-            from importlib import abc
-
-    assert concurrent.futures.as_completed
-    print(f"Time taken for lazy import v2 = {ct.total_time}")
