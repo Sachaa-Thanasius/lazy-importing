@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "lazy_import"
 description = "An attempt at a context manager for conditional lazy imports in Python."
 requires-python = ">=3.8"
-version = "2024.01.12"
+version = "2024.03.18"
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
@@ -110,5 +110,3 @@ reportMissingTypeStubs = "warning"
 reportImportCycles = "warning"
 reportPropertyTypeMismatch = "warning"
 reportUnnecessaryTypeIgnoreComment = "warning"
-
-defineConstant = { __debug__ = true }
