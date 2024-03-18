@@ -60,4 +60,19 @@ def test_lazy_imp():
             from importlib import abc
 
     assert concurrent.futures.as_completed
-    print(f"Time taken for lazy import v1 = {ct.total_time}")
+    print(f"Time taken for lazy import = {ct.total_time}")
+
+
+def test_delayed_circular_import():
+    import typing
+
+    from tests.dummy_pkg import scratch1, scratch2
+
+    print(typing.get_type_hints(scratch1.Scratch1.__init__))
+    print(typing.get_type_hints(scratch2.Scratch2.__init__))
+
+    if sys.version_info >= (3, 10):
+        import inspect
+
+        print(inspect.get_annotations(scratch1.Scratch1.__init__, eval_str=True))
+        print(inspect.get_annotations(scratch2.Scratch2.__init__, eval_str=True))
