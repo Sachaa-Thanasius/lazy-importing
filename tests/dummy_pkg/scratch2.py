@@ -1,7 +1,7 @@
 from lazy_import import lazy_imp
 
 with lazy_imp():
-    from tests.dummy_pkg import scratch1
+    from . import scratch1
 
 __all__ = ("Scratch2",)
 

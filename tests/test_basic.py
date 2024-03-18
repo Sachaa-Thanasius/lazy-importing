@@ -1,12 +1,12 @@
-"""A stub of a test file. TODO: Make more comprehensive."""
-
 import importlib.util
 import sys
 import time
 
 from lazy_import import lazy_imp
 
-from . import recipes
+from .recipes import lazy_import_docs
+
+# TODO: Make tests more comprehensive.
 
 
 class catchtime:
@@ -36,13 +36,13 @@ def test_regular_import():
 
 def test_recipe_docs():
     with catchtime() as ct:
-        lazy_concurrent_futures = recipes.lazy_import_docs("concurrent.futures")
-        lazy_contextlib = recipes.lazy_import_docs("contextlib")
-        lazy_importlib_abc = recipes.lazy_import_docs("importlib.abc")
-        lazy_inspect = recipes.lazy_import_docs("inspect")
-        lazy_itertools = recipes.lazy_import_docs("itertools")
-        lazy_types = recipes.lazy_import_docs("types")
-        lazy_typing = recipes.lazy_import_docs("typing")
+        lazy_concurrent_futures = lazy_import_docs("concurrent.futures")
+        lazy_contextlib = lazy_import_docs("contextlib")
+        lazy_importlib_abc = lazy_import_docs("importlib.abc")
+        lazy_inspect = lazy_import_docs("inspect")
+        lazy_itertools = lazy_import_docs("itertools")
+        lazy_types = lazy_import_docs("types")
+        lazy_typing = lazy_import_docs("typing")
 
     assert lazy_concurrent_futures.as_completed
     print(f"Time taken for lazy import (based on importlib recipe) = {ct.total_time}")
@@ -68,11 +68,11 @@ def test_delayed_circular_import():
 
     from tests.dummy_pkg import scratch1, scratch2
 
-    print(typing.get_type_hints(scratch1.Scratch1.__init__))
-    print(typing.get_type_hints(scratch2.Scratch2.__init__))
+    assert typing.get_type_hints(scratch1.Scratch1.__init__) == {"scr": scratch2.Scratch2 | None}
+    assert typing.get_type_hints(scratch2.Scratch2.__init__) == {"scr": scratch1.Scratch1 | None}
 
     if sys.version_info >= (3, 10):
         import inspect
 
-        print(inspect.get_annotations(scratch1.Scratch1.__init__, eval_str=True))
-        print(inspect.get_annotations(scratch2.Scratch2.__init__, eval_str=True))
+        assert inspect.get_annotations(scratch1.Scratch1.__init__, eval_str=True) == {"scr": scratch2.Scratch2 | None}
+        assert inspect.get_annotations(scratch2.Scratch2.__init__, eval_str=True) == {"scr": scratch1.Scratch1 | None}

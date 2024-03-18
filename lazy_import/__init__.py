@@ -35,8 +35,8 @@ class lazy_imp:
 
     Notes
     -----
-    This isn't that clever. It adds a special finder to sys.meta_path and then removes it. That finder wraps the loaders
-    for imported modules with importlib.util.LazyLoader. That's it.
+    The implementation isn't that clever. It adds a special finder to sys.meta_path and then removes it. That finder
+    wraps the loaders of imported modules with importlib.util.LazyLoader.
     """
 
     def __enter__(self):
