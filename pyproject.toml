@@ -3,22 +3,26 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "lazy_importing"
+name = "lazy_import"
 description = "An attempt at a context manager for conditional lazy imports in Python."
 requires-python = ">=3.8"
 version = "2024.01.12"
 readme = "README.md"
 license = { file = "LICENSE" }
-authors = [{ name = "Sachaa-Thanasius", email = "111999343+Sachaa-Thanasius@users.noreply.github.com" }]
+authors = [
+    { name = "Sachaa-Thanasius", email = "111999343+Sachaa-Thanasius@users.noreply.github.com" },
+]
 classifiers = ["Development Status :: 1 - Planning"]
 
 [tool.setuptools]
-packages = ["lazy_importing"]
+packages = ["lazy_import"]
 
 [tool.ruff]
-include = ["lazy_importing"]
+include = ["lazy_import/*"]
 line-length = 120
 target-version = "py38"
+
+[tool.ruff.lint]
 select = [
     "F",
     "E",
@@ -39,67 +43,72 @@ select = [
     "INP",
     "PIE",
     "T20",
-    "Q003",
+    "PYI",
     "RSE",
     "RET",
     "SIM",
     "TID",
     "PTH",
     "ERA",
-    "PLC",
-    "PLE",
-    "PLR",
-    "PLW",
-    "TRY",
-    "RUF",
-    "NPY",
     "PD",
-    "PYI",
+    "PL",
+    "TRY",
+    "NPY",
+    "RUF",
 ]
 ignore = [
-    "G002",    # Erroneous issue with %-logging when logging can be configured for % logging.
-    "S101",    # Use of assert here is a known quantity. Blame typing memes.
-    "PLR2004", # Magic value comparison.
-    "SIM105",  # Suppressable exception. I'm not paying the overhead of contextlib.suppress for stylistic choices.
-    "C90",     # McCabe complexity memes.
-    "PLR",     # Complexity things.
-    "ANN101",  # Type of Self for self is implicit.
-    "ANN102",  # Type of type[Self] for cls is implicit.
-    "ANN204",  # Special method return types are known by type checkers.
-    "A002",    # Some builtin names are shadowed, like globals and locals.
-    # Recommended ignores by ruff when using ruff format.
+    "S101", # Use of assert here is a known quantity. Blame typing memes.
+    # "PLR2004", # Magic value comparison. May remove later.
+    "SIM105", # Suppressable exception. contextlib.suppress is a stylistic choice with overhead.
+    "C90",    # McCabe complexity memes.
+    # "PD011",  # Erroneous issue that triggers for any .values attribute access at all.
+    "ANN101", # Type of self is usually implicit.
+    "ANN102", # Type of cls is usually implicit.
+    "ANN204", # Special method return types are usually implicit or known by type checker.
+    "ANN401", # Need Any for some cases.
+    "PLR",    # Complexity things.
+    # Some builtin names are shadowed.
+    "A001",
+    "A002",
+    # Recommended by Ruff when using Ruff format.
+    "E111",
+    "E114",
+    "E117",
+    "Q003",
     "COM812",
     "COM819",
-    "E501",
+    # "E501",
     "ISC001",
-    "Q003",
+    "ISC002",
 ]
 unfixable = [
     "ERA", # I don't want anything erroneously detected deleted by this.
 ]
 
-[tool.ruff.extend-per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "tests/*.*" = [
-    "INP001", # Don't need a __init__.py.
-    "T201",   # Printing is fine.
-    "ANN",    # Don't need as many type annotations.
-    "F401",   # Unused imports.
-    "F841",   # Unused assigned variables.
+    "T201", # Printing is fine.
+    "ANN",  # Don't need many type annotations.
+    "F401", # Unused imports - testing imports.
+    "F841", # Unused assigned variables.
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 combine-as-imports = true
 
 [tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true
 
 [tool.pyright]
-include = ["lazy_importing"]
+include = ["lazy_import"]
 ignore = ["tests"]
 pythonVersion = "3.8"
 typeCheckingMode = "strict"
 
+reportPrivateUsage = "none"
 reportMissingTypeStubs = "warning"
 reportImportCycles = "warning"
 reportPropertyTypeMismatch = "warning"
 reportUnnecessaryTypeIgnoreComment = "warning"
+
+defineConstant = { __debug__ = true }

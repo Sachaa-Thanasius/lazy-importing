@@ -4,20 +4,7 @@ import importlib.util
 import sys
 import time
 
-
-def lazy_import(name: str):
-    """Lazy import recipe from the importlib docs.
-
-    Source: https://docs.python.org/3.11/library/importlib.html#implementing-lazy-imports
-    """
-
-    spec = importlib.util.find_spec(name)
-    loader = importlib.util.LazyLoader(spec.loader)
-    spec.loader = loader
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    loader.exec_module(module)
-    return module
+from lazy_import import lazy_imp, lazy_imp2, recipes
 
 
 class catchtime:
@@ -31,31 +18,6 @@ class catchtime:
         self.total_time = time.perf_counter() - self.total_time
 
 
-def test_lazy_import_recipe():
-    with catchtime() as ct:
-        lazy_concurrent_futures = lazy_import("concurrent.futures")
-        lazy_typing = lazy_import("typing")
-        lazy_types = lazy_import("types")
-        lazy_contextlib = lazy_import("contextlib")
-        lazy_itertools = lazy_import("itertools")
-
-    print(f"Time taken for lazy import (based on importlib recipe) = {ct.total_time}")
-
-
-def test_lazy_import_custom():
-    from lazy_importing import lazy_loading
-
-    with catchtime() as ct:  # noqa: SIM117 # Need to display the full block.
-        with lazy_loading():
-            import concurrent.futures
-            import contextlib
-            import itertools
-            import types
-            import typing
-
-    print(f"Time taken for lazy import = {ct.total_time}")
-
-
 def test_regular_import():
     with catchtime() as ct:
         import concurrent.futures
@@ -63,27 +25,51 @@ def test_regular_import():
         import itertools
         import types
         import typing
+        from importlib import abc
 
+    assert concurrent.futures.as_completed
     print(f"Time taken for regular import = {ct.total_time}")
 
 
-def run_test():
-    import argparse
+def test_recipe_docs():
+    with catchtime() as ct:
+        lazy_concurrent_futures = recipes.lazy_import_docs("concurrent.futures")
+        lazy_contextlib = recipes.lazy_import_docs("contextlib")
+        lazy_importlib_abc = recipes.lazy_import_docs("importlib.abc")
+        lazy_inspect = recipes.lazy_import_docs("inspect")
+        lazy_itertools = recipes.lazy_import_docs("itertools")
+        lazy_types = recipes.lazy_import_docs("types")
+        lazy_typing = recipes.lazy_import_docs("typing")
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "import_type",
-        help="The type of import to test the speed of.",
-        choices=["regular", "lazy", "lazy-recipe"],
-    )
-    args = parser.parse_args()
-    if args.import_type == "regular":
-        test_regular_import()
-    elif args.import_type == "lazy":
-        test_lazy_import_custom()
-    elif args.import_type == "lazy-recipe":
-        test_lazy_import_recipe()
+    assert lazy_concurrent_futures.as_completed
+    print(f"Time taken for lazy import (based on importlib recipe) = {ct.total_time}")
 
 
-if __name__ == "__main__":
-    raise SystemExit(run_test())
+def test_lazy_import_v1():
+    with catchtime() as ct:  # noqa: SIM117 # Display the separate block.
+        with lazy_imp():
+            import concurrent.futures
+            import contextlib
+            import inspect
+            import itertools
+            import types
+            import typing
+            from importlib import abc
+
+    assert concurrent.futures.as_completed
+    print(f"Time taken for lazy import v1 = {ct.total_time}")
+
+
+def test_lazy_import_v2():
+    with catchtime() as ct:  # noqa: SIM117 # Display the separate block.
+        with lazy_imp2():
+            import concurrent.futures
+            import contextlib
+            import inspect
+            import itertools
+            import types
+            import typing
+            from importlib import abc
+
+    assert concurrent.futures.as_completed
+    print(f"Time taken for lazy import v2 = {ct.total_time}")
