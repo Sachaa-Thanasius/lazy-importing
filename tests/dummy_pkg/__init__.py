@@ -1,2 +1,2 @@
-import tests.dummy_pkg.scratch1 as scratch1
-import tests.dummy_pkg.scratch2 as scratch2
+import tests.dummy_pkg.dummy1 as dummy1
+import tests.dummy_pkg.dummy2 as dummy2
